@@ -25,11 +25,46 @@ pub struct SearchResult<T> {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct SearchResultX {
+    /// The formatted result.
+    #[serde(rename = "_formatted")]
+    pub formatted_result: Option<Map<String, Value>>,
+    /// The object that contains information about the matches.
+    #[serde(rename = "_matchesInfo")]
+    pub matches_info: Option<HashMap<String, Vec<MatchRange>>>,
+}
+
+
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 /// A struct containing search results and other information about the search.
 pub struct SearchResults<T> {
     /// Results of the query
     pub hits: Vec<SearchResult<T>>,
+    /// Number of documents skipped
+    pub offset: usize,
+    /// Number of results returned
+    pub limit: usize,
+    /// Total number of matches
+    pub nb_hits: usize,
+    /// Whether nb_hits is exhaustive
+    pub exhaustive_nb_hits: bool,
+    /// Distribution of the given facets
+    pub facets_distribution: Option<HashMap<String, HashMap<String, usize>>>,
+    /// Whether facet_distribution is exhaustive
+    pub exhaustive_facets_count: Option<bool>,
+    /// Processing time of the query
+    pub processing_time_ms: usize,
+    /// Query originating the response
+    pub query: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+/// A struct containing search results and other information about the search.
+pub struct SearchResultsX {
+    /// Results of the query
+    pub hits: Vec<SearchResultX>,
     /// Number of documents skipped
     pub offset: usize,
     /// Number of results returned
@@ -322,6 +357,13 @@ impl<'a> Query<'a> {
         &'a self,
     ) -> Result<SearchResults<T>, Error> {
         self.index.execute_query::<T>(self).await
+    }
+
+    /// Execute the query and fetch the results.
+    pub async fn execute_x(
+        &'a self,
+    ) -> Result<SearchResultsX, Error> {
+        self.index.execute_query_x(self).await
     }
 }
 

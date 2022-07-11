@@ -179,6 +179,19 @@ impl Index {
         .await
     }
 
+    pub async fn execute_query_x(
+        &self,
+        query: &Query<'_>,
+    ) -> Result<SearchResultsX, Error> {
+        request::<&Query, SearchResultsX>(
+            &format!("{}/indexes/{}/search", self.client.host, self.uid),
+            &self.client.api_key,
+            Method::Post(query),
+            200,
+        )
+        .await
+    }
+
     /// Search for documents matching a specific query in the index.\
     /// See also [Index::execute_query].
     ///
